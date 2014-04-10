@@ -44,7 +44,7 @@ func (loader *SpriteLoader) close() {
 }
 
 func (loader *SpriteLoader) getSprite(id uint32) ([]byte, error) {
-	loader.file.Seek(int64(loader.spriteIndex[id]), 0)
+	loader.file.Seek(int64(loader.spriteIndex[id]), os.SEEK_SET)
 	reader := bufio.NewReader(loader.file)
 
 	var length uint16
