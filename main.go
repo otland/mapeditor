@@ -21,6 +21,4 @@ func main() {
 		group.Done()
 	}()
 	group.Wait()
-
-	sprLoader.close()
 }
