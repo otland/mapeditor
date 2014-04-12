@@ -32,14 +32,14 @@ func (loader *SpriteLoader) load(filename string) error {
 	}
 
 	offset := (num_sprites * 4) - 4
+	spriteIndexOffset := offset - 3
 
 	loader.spriteIndex = make([]uint32, num_sprites+1)
 	for i := uint32(1); i <= num_sprites; i++ {
 		if err := binary.Read(reader, binary.LittleEndian, &loader.spriteIndex[i]); err != nil {
 			return err
 		}
-		loader.spriteIndex[i] -= offset
-		loader.spriteIndex[i] += 3
+		loader.spriteIndex[i] -= spriteIndexOffset
 	}
 
 	fi, err := file.Stat()
