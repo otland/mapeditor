@@ -1,9 +1,9 @@
 package main
 
 import (
+	"bufio"
 	"encoding/binary"
 	"fmt"
-	"bufio"
 )
 
 const (
@@ -13,17 +13,17 @@ const (
 )
 
 type BinaryNode struct {
-	pos			int
-	data		[]byte
-	children	[]BinaryNode
+	pos      int
+	data     []byte
+	children []BinaryNode
 }
 
 func (binaryNode *BinaryNode) unpackShort() uint16 {
-	return uint16(binaryNode.data[binaryNode.pos]) | uint16(binaryNode.data[binaryNode.pos + 1]) << 8
+	return uint16(binaryNode.data[binaryNode.pos]) | uint16(binaryNode.data[binaryNode.pos+1])<<8
 }
 
 func (binaryNode *BinaryNode) getByte() (uint8, error) {
-	if binaryNode.pos + 1 > len(binaryNode.data) {
+	if binaryNode.pos+1 > len(binaryNode.data) {
 		return 0, fmt.Errorf("Out of data (pos: %d, size: %d)", binaryNode.pos, len(binaryNode.data))
 	}
 
@@ -33,24 +33,24 @@ func (binaryNode *BinaryNode) getByte() (uint8, error) {
 }
 
 func (binaryNode *BinaryNode) getShort() (uint16, error) {
-	if binaryNode.pos + 2 > len(binaryNode.data) {
+	if binaryNode.pos+2 > len(binaryNode.data) {
 		return 0, fmt.Errorf("Out of data (pos: %d, size: %d)", binaryNode.pos, len(binaryNode.data))
 	}
 
-	ret  := binaryNode.unpackShort()
+	ret := binaryNode.unpackShort()
 	binaryNode.pos += 2
 
 	return ret, nil
 }
 
 func (binaryNode *BinaryNode) getLong() (uint32, error) {
-	if binaryNode.pos + 4 > len(binaryNode.data) {
+	if binaryNode.pos+4 > len(binaryNode.data) {
 		return 0, fmt.Errorf("Out of data (pos: %d, size: %d)", binaryNode.pos, len(binaryNode.data))
 	}
 
 	u16 := binaryNode.unpackShort()
 	binaryNode.pos += 2
-	ret := uint32(u16) | uint32(binaryNode.unpackShort()) << 16
+	ret := uint32(u16) | uint32(binaryNode.unpackShort())<<16
 	binaryNode.pos += 2
 
 	return ret, nil
@@ -62,11 +62,11 @@ func (binaryNode *BinaryNode) getString() (string, error) {
 		return "", err
 	}
 
-	if binaryNode.pos + int(length) > len(binaryNode.data) {
+	if binaryNode.pos+int(length) > len(binaryNode.data) {
 		return "", fmt.Errorf("Out of data")
 	}
 
-	ret := string(binaryNode.data[binaryNode.pos : binaryNode.pos + int(length)])
+	ret := string(binaryNode.data[binaryNode.pos : binaryNode.pos+int(length)])
 	binaryNode.pos += int(length)
 	return ret, nil
 }

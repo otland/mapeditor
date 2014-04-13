@@ -1,17 +1,17 @@
 package main
 
 import (
-	"os"
-	"encoding/binary"
 	"bufio"
+	"encoding/binary"
 	"fmt"
 	"log"
+	"os"
 )
 
 type OtbLoader struct {
-	items			[]ItemType
-	majorVersion	uint32
-	minorVersion	uint32
+	items        []ItemType
+	majorVersion uint32
+	minorVersion uint32
 }
 
 func (otbLoader *OtbLoader) load(fileName string) (err error) {
@@ -43,7 +43,7 @@ func (otbLoader *OtbLoader) load(fileName string) (err error) {
 		return
 	}
 
-	root.pos += 1	// first byte always 0
+	root.pos += 1 // first byte always 0
 	if signature, err = root.getLong(); err != nil || signature != 0 {
 		log.Print(err)
 		return fmt.Errorf("Invalid signature in OTB file!")
@@ -53,7 +53,7 @@ func (otbLoader *OtbLoader) load(fileName string) (err error) {
 		return fmt.Errorf("Invalid otb attr root version")
 	}
 
-	if size, err := root.getShort(); err != nil || size != 4 + 4 + 4 + 128 {
+	if size, err := root.getShort(); err != nil || size != 4+4+4+128 {
 		return fmt.Errorf("Invalid otb attr root version size")
 	}
 
