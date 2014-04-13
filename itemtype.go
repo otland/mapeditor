@@ -7,7 +7,7 @@ type ItemType struct {
 	serverId uint16
 }
 
-func (itemType ItemType) unserialize(binaryNode *BinaryNode, otbLoader *OtbLoader, lastId uint16) (err error) {
+func (itemType ItemType) unserialize(binaryNode *BinaryNode, otbLoader *OtbLoader) (err error) {
 	if itemType.category, err = binaryNode.getByte(); err != nil {
 		return
 	}
@@ -32,30 +32,31 @@ func (itemType ItemType) unserialize(binaryNode *BinaryNode, otbLoader *OtbLoade
 				return
 			}
 
-			// Fugly code, continue with caution.  You have been warned.
-			if otbLoader.minorVersion < ClientVersion860 {
-				if itemType.serverId > 20000 && itemType.serverId < 20100 {
-					itemType.serverId -= 20000
-				} else if lastId > 99 && lastId != itemType.serverId-1 {
-					for lastId != itemType.serverId-1 {
-						var reservedType ItemType
-						reservedType.serverId = lastId
-						lastId += 1
-						otbLoader.items = append(otbLoader.items, reservedType)
+			/*
+				if otbLoader.minorVersion < ClientVersion860 {
+					if itemType.serverId > 20000 && itemType.serverId < 20100 {
+						itemType.serverId -= 20000
+					} else if *lastId > 99 && *lastId != itemType.serverId-1 {
+						for *lastId != itemType.serverId-1 {
+							var reservedType ItemType
+							reservedType.serverId = *lastId
+							*lastId += 1
+							otbLoader.items = append(otbLoader.items, reservedType)
+						}
+					}
+				} else {
+					if itemType.serverId > 30000 && itemType.serverId < 30100 {
+						itemType.serverId -= 30000
+					} else if *lastId > 99 && *lastId != itemType.serverId-1 {
+						for *lastId != itemType.serverId-1 {
+							var reservedType ItemType
+							reservedType.serverId = *lastId
+							*lastId += 1
+							otbLoader.items = append(otbLoader.items, reservedType)
+						}
 					}
 				}
-			} else {
-				if itemType.serverId > 30000 && itemType.serverId < 30100 {
-					itemType.serverId -= 30000
-				} else if lastId > 99 && lastId != itemType.serverId-1 {
-					for lastId != itemType.serverId-1 {
-						var reservedType ItemType
-						reservedType.serverId = lastId
-						lastId += 1
-						otbLoader.items = append(otbLoader.items, reservedType)
-					}
-				}
-			}
+			*/
 		case ItemTypeAttrClientId:
 			if itemType.clientId, err = binaryNode.getShort(); err != nil {
 				return

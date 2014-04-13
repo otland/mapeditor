@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"encoding/binary"
 	"fmt"
-	"log"
 	"os"
 )
 
@@ -66,10 +65,9 @@ func (otbLoader *OtbLoader) load(fileName string) (err error) {
 
 	root.skip(4 + 128)
 
-	lastId := uint16(99)
-	for i := 0; i < len(root.children); i++ {
+	for i := range root.children {
 		var itemType ItemType
-		itemType.unserialize(&root.children[i], otbLoader, lastId)
+		itemType.unserialize(&root.children[i], otbLoader)
 		otbLoader.items = append(otbLoader.items, itemType)
 	}
 
