@@ -85,6 +85,16 @@ func (binaryNode *BinaryNode) skip(length int) error {
 	return nil
 }
 
+func (binaryNode *BinaryNode) parse(reader *bufio.Reader) error {
+	if startByte, err := reader.ReadByte(); err != nil {
+		return err
+	} else if startByte != NODE_START {
+		return fmt.Errorf("Unable to read root node start byte (should be 0x%x got 0x%x\n", NODE_START, startByte)
+	}
+
+	return binaryNode.unserialize(reader)
+}
+
 func (binaryNode *BinaryNode) unserialize(reader *bufio.Reader) (err error) {
 	for {
 		var what uint8

@@ -33,13 +33,8 @@ func (otbLoader *OtbLoader) load(fileName string) (err error) {
 		return
 	}
 
-	var nodeStart uint8
-	if err = binary.Read(reader, binary.LittleEndian, &nodeStart); err != nil || nodeStart != NODE_START {
-		return errors.New("Failed to read node start")
-	}
-
 	root := BinaryNode{}
-	if err = root.unserialize(reader); err != nil {
+	if err = root.parse(reader); err != nil {
 		return
 	}
 
@@ -65,7 +60,6 @@ func (otbLoader *OtbLoader) load(fileName string) (err error) {
 	}
 
 	root.skip(4 + 128)
-
 	for i := range root.children {
 		var itemType ItemType
 		itemType.unserialize(&root.children[i], otbLoader)
