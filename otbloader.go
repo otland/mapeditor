@@ -38,14 +38,13 @@ func (otbLoader *OtbLoader) load(fileName string) (err error) {
 		return fmt.Errorf("Failed to read node start")
 	}
 
-	root := &BinaryNode{}
+	root := BinaryNode{}
 	if err = root.unserialize(reader); err != nil {
 		return
 	}
 
-	root.pos += 1 // first byte always 0
+	root.skip(1) // first byte always 0
 	if signature, err = root.getLong(); err != nil || signature != 0 {
-		log.Print(err)
 		return fmt.Errorf("Invalid signature in OTB file!")
 	}
 
@@ -65,12 +64,12 @@ func (otbLoader *OtbLoader) load(fileName string) (err error) {
 		return
 	}
 
-	root.pos += 4 + 128
+	root.skip(4 + 128)
 
-	lastId := 99
-	for _, binaryNode := range root.children {
+	lastId := uint16(99)
+	for i := 0; i < len(root.children); i++ {
 		var itemType ItemType
-		itemType.unserialize(&binaryNode, otbLoader, lastId)
+		itemType.unserialize(&root.children[i], otbLoader, lastId)
 		otbLoader.items = append(otbLoader.items, itemType)
 	}
 

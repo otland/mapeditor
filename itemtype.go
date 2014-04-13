@@ -7,13 +7,13 @@ type ItemType struct {
 	serverId uint16
 }
 
-func (itemType ItemType) unserialize(binaryNode *BinaryNode, otbLoader *OtbLoader, lastId int) (err error) {
+func (itemType ItemType) unserialize(binaryNode *BinaryNode, otbLoader *OtbLoader, lastId uint16) (err error) {
 	if itemType.category, err = binaryNode.getByte(); err != nil {
 		return
 	}
-	binaryNode.pos += 4 // flags
+	binaryNode.skip(4) // flags
 
-	for binaryNode.pos < len(binaryNode.data) {
+	for len(binaryNode.data) != 0 {
 		var attr uint8
 
 		attr, err = binaryNode.getByte()
@@ -36,10 +36,10 @@ func (itemType ItemType) unserialize(binaryNode *BinaryNode, otbLoader *OtbLoade
 			if otbLoader.minorVersion < ClientVersion860 {
 				if itemType.serverId > 20000 && itemType.serverId < 20100 {
 					itemType.serverId -= 20000
-				} else if uint16(lastId) > 99 && uint16(lastId) != itemType.serverId-1 {
-					for uint16(lastId) != itemType.serverId-1 {
+				} else if lastId > 99 && lastId != itemType.serverId-1 {
+					for lastId != itemType.serverId-1 {
 						var reservedType ItemType
-						reservedType.serverId = uint16(lastId)
+						reservedType.serverId = lastId
 						lastId += 1
 						otbLoader.items = append(otbLoader.items, reservedType)
 					}
@@ -47,10 +47,10 @@ func (itemType ItemType) unserialize(binaryNode *BinaryNode, otbLoader *OtbLoade
 			} else {
 				if itemType.serverId > 30000 && itemType.serverId < 30100 {
 					itemType.serverId -= 30000
-				} else if uint16(lastId) > 99 && uint16(lastId) != itemType.serverId-1 {
-					for uint16(lastId) != itemType.serverId-1 {
+				} else if lastId > 99 && lastId != itemType.serverId-1 {
+					for lastId != itemType.serverId-1 {
 						var reservedType ItemType
-						reservedType.serverId = uint16(lastId)
+						reservedType.serverId = lastId
 						lastId += 1
 						otbLoader.items = append(otbLoader.items, reservedType)
 					}
@@ -65,7 +65,7 @@ func (itemType ItemType) unserialize(binaryNode *BinaryNode, otbLoader *OtbLoade
 				return
 			}
 		default:
-			binaryNode.pos += int(length)
+			binaryNode.skip(int(length))
 		}
 	}
 

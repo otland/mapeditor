@@ -13,45 +13,44 @@ const (
 )
 
 type BinaryNode struct {
-	pos      int
 	data     []byte
 	children []BinaryNode
 }
 
 func (binaryNode *BinaryNode) unpackShort() uint16 {
-	return uint16(binaryNode.data[binaryNode.pos]) | uint16(binaryNode.data[binaryNode.pos+1])<<8
+	return uint16(binaryNode.data[0]) | uint16(binaryNode.data[1])<<8
 }
 
 func (binaryNode *BinaryNode) getByte() (uint8, error) {
-	if binaryNode.pos+1 > len(binaryNode.data) {
-		return 0, fmt.Errorf("Out of data (pos: %d, size: %d)", binaryNode.pos, len(binaryNode.data))
+	if len(binaryNode.data) < 1 {
+		return 0, fmt.Errorf("Out of data!")
 	}
 
-	b := binaryNode.data[binaryNode.pos]
-	binaryNode.pos += 1
+	b := binaryNode.data[0]
+	binaryNode.data = binaryNode.data[1:]
 	return b, nil
 }
 
 func (binaryNode *BinaryNode) getShort() (uint16, error) {
-	if binaryNode.pos+2 > len(binaryNode.data) {
-		return 0, fmt.Errorf("Out of data (pos: %d, size: %d)", binaryNode.pos, len(binaryNode.data))
+	if len(binaryNode.data) < 2 {
+		return 0, fmt.Errorf("Out of data!")
 	}
 
 	ret := binaryNode.unpackShort()
-	binaryNode.pos += 2
+	binaryNode.data = binaryNode.data[2:]
 
 	return ret, nil
 }
 
 func (binaryNode *BinaryNode) getLong() (uint32, error) {
-	if binaryNode.pos+4 > len(binaryNode.data) {
-		return 0, fmt.Errorf("Out of data (pos: %d, size: %d)", binaryNode.pos, len(binaryNode.data))
+	if len(binaryNode.data) < 4 {
+		return 0, fmt.Errorf("Out of data!")
 	}
 
 	u16 := binaryNode.unpackShort()
-	binaryNode.pos += 2
+	binaryNode.data = binaryNode.data[2:]
 	ret := uint32(u16) | uint32(binaryNode.unpackShort())<<16
-	binaryNode.pos += 2
+	binaryNode.data = binaryNode.data[2:]
 
 	return ret, nil
 }
@@ -62,13 +61,22 @@ func (binaryNode *BinaryNode) getString() (string, error) {
 		return "", err
 	}
 
-	if binaryNode.pos+int(length) > len(binaryNode.data) {
+	if len(binaryNode.data) < int(length) {
 		return "", fmt.Errorf("Out of data")
 	}
 
-	ret := string(binaryNode.data[binaryNode.pos : binaryNode.pos+int(length)])
-	binaryNode.pos += int(length)
+	ret := string(binaryNode.data[:int(length)])
+	binaryNode.data = binaryNode.data[int(length):]
 	return ret, nil
+}
+
+func (binaryNode *BinaryNode) skip(length int) error {
+	if len(binaryNode.data) < length {
+		return fmt.Errorf("Cannot skip %d bytes", length)
+	}
+
+	binaryNode.data = binaryNode.data[length:]
+	return nil
 }
 
 func (binaryNode *BinaryNode) unserialize(reader *bufio.Reader) error {
