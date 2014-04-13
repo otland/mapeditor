@@ -1,6 +1,15 @@
 package main
 
 const (
+	ThingCategoryItem = iota
+	ThingCategoryCreature
+	ThingCategoryEffect
+	ThingCategoryMissile
+	ThingInvalidCategory
+	ThingLastCategory
+)
+
+const (
 	ItemCategoryInvalid = iota
 	ItemCategoryGround
 	ItemCategoryContainer

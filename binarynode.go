@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"encoding/binary"
 	"errors"
 	"fmt"
 )
@@ -86,11 +85,10 @@ func (binaryNode *BinaryNode) skip(length int) error {
 	return nil
 }
 
-func (binaryNode *BinaryNode) unserialize(reader *bufio.Reader) error {
+func (binaryNode *BinaryNode) unserialize(reader *bufio.Reader) (err error) {
 	for {
 		var what uint8
-
-		if err := binary.Read(reader, binary.LittleEndian, &what); err != nil {
+		if what, err = reader.ReadByte(); err != nil {
 			// Most likely an EOF and we don't care.
 			return nil
 		}
@@ -98,8 +96,8 @@ func (binaryNode *BinaryNode) unserialize(reader *bufio.Reader) error {
 		switch what {
 		case NODE_START:
 			var newNode BinaryNode
-			if err := newNode.unserialize(reader); err != nil {
-				return err
+			if err = newNode.unserialize(reader); err != nil {
+				return
 			}
 
 			binaryNode.children = append(binaryNode.children, newNode)
@@ -107,8 +105,8 @@ func (binaryNode *BinaryNode) unserialize(reader *bufio.Reader) error {
 			return nil
 		case ESCAPE_CHAR:
 			var b uint8
-			if err := binary.Read(reader, binary.LittleEndian, &b); err != nil {
-				return err
+			if b, err = reader.ReadByte(); err != nil {
+				return
 			}
 
 			binaryNode.data = append(binaryNode.data, b)
