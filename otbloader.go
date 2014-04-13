@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"encoding/binary"
+	"errors"
 	"fmt"
 	"os"
 )
@@ -34,7 +35,7 @@ func (otbLoader *OtbLoader) load(fileName string) (err error) {
 
 	var nodeStart uint8
 	if err = binary.Read(reader, binary.LittleEndian, &nodeStart); err != nil || nodeStart != NODE_START {
-		return fmt.Errorf("Failed to read node start")
+		return errors.New("Failed to read node start")
 	}
 
 	root := BinaryNode{}
@@ -44,15 +45,15 @@ func (otbLoader *OtbLoader) load(fileName string) (err error) {
 
 	root.skip(1) // first byte always 0
 	if signature, err = root.getLong(); err != nil || signature != 0 {
-		return fmt.Errorf("Invalid signature in OTB file!")
+		return errors.New("Invalid signature in OTB file!")
 	}
 
 	if attr, err := root.getByte(); err != nil || attr != 0x01 {
-		return fmt.Errorf("Invalid otb attr root version")
+		return errors.New("Invalid otb attr root version")
 	}
 
 	if size, err := root.getShort(); err != nil || size != 4+4+4+128 {
-		return fmt.Errorf("Invalid otb attr root version size")
+		return errors.New("Invalid otb attr root version size")
 	}
 
 	if otbLoader.majorVersion, err = root.getLong(); err != nil {

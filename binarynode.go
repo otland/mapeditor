@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"encoding/binary"
+	"errors"
 	"fmt"
 )
 
@@ -23,7 +24,7 @@ func (binaryNode *BinaryNode) unpackShort() uint16 {
 
 func (binaryNode *BinaryNode) getByte() (uint8, error) {
 	if len(binaryNode.data) < 1 {
-		return 0, fmt.Errorf("Out of data!")
+		return 0, errors.New("Out of data!")
 	}
 
 	b := binaryNode.data[0]
@@ -33,7 +34,7 @@ func (binaryNode *BinaryNode) getByte() (uint8, error) {
 
 func (binaryNode *BinaryNode) getShort() (uint16, error) {
 	if len(binaryNode.data) < 2 {
-		return 0, fmt.Errorf("Out of data!")
+		return 0, errors.New("Out of data!")
 	}
 
 	ret := binaryNode.unpackShort()
@@ -44,7 +45,7 @@ func (binaryNode *BinaryNode) getShort() (uint16, error) {
 
 func (binaryNode *BinaryNode) getLong() (uint32, error) {
 	if len(binaryNode.data) < 4 {
-		return 0, fmt.Errorf("Out of data!")
+		return 0, errors.New("Out of data!")
 	}
 
 	u16 := binaryNode.unpackShort()
@@ -57,16 +58,18 @@ func (binaryNode *BinaryNode) getLong() (uint32, error) {
 
 func (binaryNode *BinaryNode) getString() (string, error) {
 	var length uint16
-	if length, err := binaryNode.getShort(); err != nil {
+	var err error
+
+	if length, err = binaryNode.getShort(); err != nil {
 		return "", err
 	}
 
 	if length == 0 || length == 0xFFFF {
-		return "", fmt.Errorf("String length cannot be 0 or larger than 0xFFFF")
+		return "", errors.New("String length cannot be 0 or equal to 0xFFFF")
 	}
 
 	if len(binaryNode.data) < int(length) {
-		return "", fmt.Errorf("Out of data")
+		return "", errors.New("Out of data")
 	}
 
 	ret := string(binaryNode.data[:int(length)])
