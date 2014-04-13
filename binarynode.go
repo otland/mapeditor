@@ -57,8 +57,12 @@ func (binaryNode *BinaryNode) getLong() (uint32, error) {
 
 func (binaryNode *BinaryNode) getString() (string, error) {
 	var length uint16
-	if length, err := binaryNode.getShort(); err != nil || length == 0 || length == 0xFFFF {
+	if length, err := binaryNode.getShort(); err != nil {
 		return "", err
+	}
+
+	if length == 0 || length == 0xFFFF {
+		return "", fmt.Errorf("String length cannot be 0 or larger than 0xFFFF")
 	}
 
 	if len(binaryNode.data) < int(length) {
