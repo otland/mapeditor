@@ -23,7 +23,7 @@ func (binaryNode *BinaryNode) unpackShort() uint16 {
 
 func (binaryNode *BinaryNode) getByte() (uint8, error) {
 	if len(binaryNode.data) < 1 {
-		return 0, errors.New("BinaryNode.getByte() Out of data!")
+		return 0, errors.New("EOF")
 	}
 
 	b := binaryNode.data[0]
@@ -33,7 +33,7 @@ func (binaryNode *BinaryNode) getByte() (uint8, error) {
 
 func (binaryNode *BinaryNode) getShort() (uint16, error) {
 	if len(binaryNode.data) < 2 {
-		return 0, errors.New("BinaryNode.getShort(): Out of data!")
+		return 0, errors.New("EOF")
 	}
 
 	ret := binaryNode.unpackShort()
@@ -44,7 +44,7 @@ func (binaryNode *BinaryNode) getShort() (uint16, error) {
 
 func (binaryNode *BinaryNode) getLong() (uint32, error) {
 	if len(binaryNode.data) < 4 {
-		return 0, errors.New("BinaryNode.getLong(): Out of data!")
+		return 0, errors.New("EOF")
 	}
 
 	u16 := binaryNode.unpackShort()
@@ -63,12 +63,8 @@ func (binaryNode *BinaryNode) getString() (string, error) {
 		return "", err
 	}
 
-	if length == 0xFFFF {
-		return "", errors.New("BinaryNode.getString(): String length cannot be equal to 0xFFFF")
-	}
-
 	if len(binaryNode.data) < int(length) {
-		return "", errors.New("BinaryNode.getString(): Out of data")
+		return "", errors.New("EOF")
 	}
 
 	ret := string(binaryNode.data[:int(length)])
@@ -78,7 +74,7 @@ func (binaryNode *BinaryNode) getString() (string, error) {
 
 func (binaryNode *BinaryNode) skip(length int) error {
 	if len(binaryNode.data) < length {
-		return fmt.Errorf("BinaryNode.skip(): Cannot skip %d bytes", length)
+		return errors.New("EOF")
 	}
 
 	binaryNode.data = binaryNode.data[length:]
@@ -90,15 +86,15 @@ func (binaryNode *BinaryNode) getPosition() (Position, error) {
 	var pos Position
 
 	if pos.x, err = binaryNode.getShort(); err != nil {
-		return pos, fmt.Errorf("BinaryNode.getPosition(x): %s", err)
+		return pos, err
 	}
 
 	if pos.y, err = binaryNode.getShort(); err != nil {
-		return pos, fmt.Errorf("BinaryNode.getPosition(y): %s", err)
+		return pos, err
 	}
 
 	if pos.z, err = binaryNode.getByte(); err != nil {
-		return pos, fmt.Errorf("BinaryNode.getPosition(z): %s", err)
+		return pos, err
 	}
 
 	return pos, nil
@@ -108,7 +104,7 @@ func (binaryNode *BinaryNode) parse(reader *bufio.Reader) error {
 	if startByte, err := reader.ReadByte(); err != nil {
 		return err
 	} else if startByte != NodeStart {
-		return fmt.Errorf("Unable to read root node start byte (should be 0x%X got 0x%X)\n", NodeStart, startByte)
+		return fmt.Errorf("unable to read root node start byte (expected 0x%X got 0x%X)\n", NodeStart, startByte)
 	}
 
 	return binaryNode.unserialize(reader)

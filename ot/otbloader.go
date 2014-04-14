@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"encoding/binary"
 	"errors"
-	"fmt"
 	"os"
 )
 
@@ -29,8 +28,7 @@ func (otbLoader *OtbLoader) Load(fileName string) (err error) {
 	}
 
 	if signature != 0 {
-		fmt.Println("Invalid OTB signature")
-		return
+		return errors.New("invalid OTB signature")
 	}
 
 	var root BinaryNode
@@ -40,15 +38,15 @@ func (otbLoader *OtbLoader) Load(fileName string) (err error) {
 
 	root.skip(1) // first byte always 0
 	if signature, err = root.getLong(); err != nil || signature != 0 {
-		return errors.New("Invalid signature in OTB file!")
+		return errors.New("invalid signature in OTB file")
 	}
 
 	if attr, err := root.getByte(); err != nil || attr != 0x01 {
-		return errors.New("Invalid otb attr root version")
+		return errors.New("invalid otb attr root version")
 	}
 
 	if size, err := root.getShort(); err != nil || size != 4+4+4+128 {
-		return errors.New("Invalid otb attr root version size")
+		return errors.New("invalid otb attr root version size")
 	}
 
 	if otbLoader.majorVersion, err = root.getLong(); err != nil {
