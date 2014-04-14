@@ -3,8 +3,8 @@ package main
 import (
 	"bufio"
 	"encoding/binary"
+	"github.com/otland/mmap-go"
 	"os"
-	"syscall"
 )
 
 type SpriteLoader struct {
@@ -47,7 +47,7 @@ func (loader *SpriteLoader) load(filename string) error {
 		return err
 	}
 
-	if loader.data, err = syscall.Mmap(int(file.Fd()), int64(offset), int(fi.Size()-int64(offset)), syscall.PROT_READ, syscall.MAP_PRIVATE); err != nil {
+	if loader.data, err = mmap.MapRegion(file, int(fi.Size()-int64(offset)), mmap.RDONLY, 0, int64(offset)); err != nil {
 		return err
 	}
 	return nil
