@@ -3,8 +3,8 @@ package ot
 type ItemType struct {
 	category uint8
 	name     string
-	clientId uint16
-	serverId uint16
+	clientID uint16
+	serverID uint16
 }
 
 func (itemType ItemType) unserialize(binaryNode *BinaryNode) (err error) {
@@ -27,38 +27,38 @@ func (itemType ItemType) unserialize(binaryNode *BinaryNode) (err error) {
 		}
 
 		switch attr {
-		case ItemTypeAttrServerId:
-			if itemType.serverId, err = binaryNode.getShort(); err != nil {
+		case ItemTypeAttrServerID:
+			if itemType.serverID, err = binaryNode.getShort(); err != nil {
 				return
 			}
 
 			/*
 				if otbLoader.minorVersion < ClientVersion860 {
-					if itemType.serverId > 20000 && itemType.serverId < 20100 {
-						itemType.serverId -= 20000
-					} else if *lastId > 99 && *lastId != itemType.serverId-1 {
-						for *lastId != itemType.serverId-1 {
+					if itemType.serverID > 20000 && itemType.serverID < 20100 {
+						itemType.serverID -= 20000
+					} else if *lastId > 99 && *lastId != itemType.serverID-1 {
+						for *lastId != itemType.serverID-1 {
 							var reservedType ItemType
-							reservedType.serverId = *lastId
+							reservedType.serverID = *lastId
 							*lastId += 1
 							otbLoader.items = append(otbLoader.items, reservedType)
 						}
 					}
 				} else {
-					if itemType.serverId > 30000 && itemType.serverId < 30100 {
-						itemType.serverId -= 30000
-					} else if *lastId > 99 && *lastId != itemType.serverId-1 {
-						for *lastId != itemType.serverId-1 {
+					if itemType.serverID > 30000 && itemType.serverID < 30100 {
+						itemType.serverID -= 30000
+					} else if *lastID > 99 && *lastID != itemType.serverID-1 {
+						for *lastID != itemType.serverID-1 {
 							var reservedType ItemType
-							reservedType.serverId = *lastId
-							*lastId += 1
+							reservedType.serverID = *lastID
+							*lastID += 1
 							otbLoader.items = append(otbLoader.items, reservedType)
 						}
 					}
 				}
 			*/
-		case ItemTypeAttrClientId:
-			if itemType.clientId, err = binaryNode.getShort(); err != nil {
+		case ItemTypeAttrClientID:
+			if itemType.clientID, err = binaryNode.getShort(); err != nil {
 				return
 			}
 		case ItemTypeAttrName:

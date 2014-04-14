@@ -26,16 +26,16 @@ func (loader *SpriteLoader) load(filename string) error {
 		return err
 	}
 
-	var num_sprites uint32
-	if err := binary.Read(reader, binary.LittleEndian, &num_sprites); err != nil {
+	var numSprites uint32
+	if err := binary.Read(reader, binary.LittleEndian, &numSprites); err != nil {
 		return err
 	}
 
-	offset := (num_sprites * 4) - 4
+	offset := (numSprites * 4) - 4
 	spriteIndexOffset := offset - 3
 
-	loader.spriteIndex = make([]uint32, num_sprites+1)
-	for i := uint32(1); i <= num_sprites; i++ {
+	loader.spriteIndex = make([]uint32, numSprites+1)
+	for i := uint32(1); i <= numSprites; i++ {
 		if err := binary.Read(reader, binary.LittleEndian, &loader.spriteIndex[i]); err != nil {
 			return err
 		}
