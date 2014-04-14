@@ -1,4 +1,67 @@
-package main
+package ot
+
+const (
+	TileFlag_None           = 0
+	TileFlag_ProtectionZone = 1 << 0
+	TileFlag_Trashed        = 1 << 1
+	TileFlag_OptionalZone   = 1 << 2
+	TileFlag_NoLogout       = 1 << 3
+	TileFlag_HardcoreZone   = 1 << 4
+	TileFlag_Refresh        = 1 << 5
+
+	// internal usage
+	TileFlag_House       = 1 << 6
+	TileFlag_Teleport    = 1 << 17
+	TileFlag_MagicField  = 1 << 18
+	TileFlag_MailBox     = 1 << 19
+	TileFlag_TrashHolder = 1 << 20
+	TileFlag_Bed         = 1 << 21
+	TileFlag_Depot       = 1 << 22
+
+	TileFlag_Last = 1 << 24
+)
+
+const (
+	OTBM_NodeRootV2    = 1
+	OTBM_NodeMapData   = 2
+	OTBM_NodeTileArea  = 4
+	OTBM_NodeTile      = 5
+	OTBM_NodeItem      = 6
+	OTBM_NodeTowns     = 12
+	OTBM_NodeTown      = 13
+	OTBM_NodeHouseTile = 14
+	OTBM_NodeWaypoints = 15
+	OTBM_NodeWaypoint  = 16
+)
+
+const (
+	OTBM_AttrDescription = 1
+	OTBM_AttrTileFlags   = 3
+	OTBM_AttrItem        = 9
+	OTBM_AttrSpawnFile   = 11
+	OTBM_AttrHouseFile   = 13
+)
+
+const (
+	OTBM_ItemAttrActionId        = 4
+	OTBM_ItemAttrUniqueId        = 5
+	OTBM_ItemAttrText            = 6
+	OTBM_ItemAttrDesc            = 7
+	OTBM_ItemAttrTeleDest        = 8
+	OTBM_ItemAttrItem            = 9
+	OTBM_ItemAttrDepotId         = 10
+	OTBM_ItemAttrRuneCharges     = 12
+	OTBM_ItemAttrHouseDoorId     = 14
+	OTBM_ItemAttrCount           = 15
+	OTBM_ItemAttrDuration        = 16
+	OTBM_ItemAttrDecayState      = 17
+	OTBM_ItemAttrWrittenDate     = 18
+	OTBM_ItemAttrWrittenBy       = 19
+	OTBM_ItemAttrSleepingGUID    = 20
+	OTBM_ItemAttrSleepStart      = 21
+	OTBM_ItemAttrCharges         = 22
+	OTBM_ItemAttrContainerItems  = 23
+)
 
 const (
 	ThingCategoryItem = iota

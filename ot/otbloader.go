@@ -1,4 +1,4 @@
-package main
+package ot
 
 import (
 	"bufio"
@@ -14,7 +14,7 @@ type OtbLoader struct {
 	minorVersion uint32
 }
 
-func (otbLoader *OtbLoader) load(fileName string) (err error) {
+func (otbLoader *OtbLoader) Load(fileName string) (err error) {
 	file, err := os.Open(fileName)
 	if err != nil {
 		return
@@ -33,7 +33,7 @@ func (otbLoader *OtbLoader) load(fileName string) (err error) {
 		return
 	}
 
-	root := BinaryNode{}
+	var root BinaryNode
 	if err = root.parse(reader); err != nil {
 		return
 	}
@@ -62,7 +62,7 @@ func (otbLoader *OtbLoader) load(fileName string) (err error) {
 	root.skip(4 + 128)
 	for i := range root.children {
 		var itemType ItemType
-		itemType.unserialize(&root.children[i], otbLoader)
+		itemType.unserialize(&root.children[i])
 		otbLoader.items = append(otbLoader.items, itemType)
 	}
 

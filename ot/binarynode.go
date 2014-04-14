@@ -1,4 +1,4 @@
-package main
+package ot
 
 import (
 	"bufio"
@@ -7,9 +7,9 @@ import (
 )
 
 const (
-	ESCAPE_CHAR = 0xFD
-	NODE_START  = 0xFE
-	NODE_END    = 0xFF
+	EscapeChar = 0xFD
+	NodeStart  = 0xFE
+	NodeEnd    = 0xFF
 )
 
 type BinaryNode struct {
@@ -23,7 +23,7 @@ func (binaryNode *BinaryNode) unpackShort() uint16 {
 
 func (binaryNode *BinaryNode) getByte() (uint8, error) {
 	if len(binaryNode.data) < 1 {
-		return 0, errors.New("Out of data!")
+		return 0, errors.New("BinaryNode.getByte() Out of data!")
 	}
 
 	b := binaryNode.data[0]
@@ -33,7 +33,7 @@ func (binaryNode *BinaryNode) getByte() (uint8, error) {
 
 func (binaryNode *BinaryNode) getShort() (uint16, error) {
 	if len(binaryNode.data) < 2 {
-		return 0, errors.New("Out of data!")
+		return 0, errors.New("BinaryNode.getShort(): Out of data!")
 	}
 
 	ret := binaryNode.unpackShort()
@@ -44,7 +44,7 @@ func (binaryNode *BinaryNode) getShort() (uint16, error) {
 
 func (binaryNode *BinaryNode) getLong() (uint32, error) {
 	if len(binaryNode.data) < 4 {
-		return 0, errors.New("Out of data!")
+		return 0, errors.New("BinaryNode.getLong(): Out of data!")
 	}
 
 	u16 := binaryNode.unpackShort()
@@ -63,12 +63,12 @@ func (binaryNode *BinaryNode) getString() (string, error) {
 		return "", err
 	}
 
-	if length == 0 || length == 0xFFFF {
-		return "", errors.New("String length cannot be 0 or equal to 0xFFFF")
+	if length == 0xFFFF {
+		return "", errors.New("BinaryNode.getString(): String length cannot be equal to 0xFFFF")
 	}
 
 	if len(binaryNode.data) < int(length) {
-		return "", errors.New("Out of data")
+		return "", errors.New("BinaryNode.getString(): Out of data")
 	}
 
 	ret := string(binaryNode.data[:int(length)])
@@ -78,18 +78,37 @@ func (binaryNode *BinaryNode) getString() (string, error) {
 
 func (binaryNode *BinaryNode) skip(length int) error {
 	if len(binaryNode.data) < length {
-		return fmt.Errorf("Cannot skip %d bytes", length)
+		return fmt.Errorf("BinaryNode.skip(): Cannot skip %d bytes", length)
 	}
 
 	binaryNode.data = binaryNode.data[length:]
 	return nil
 }
 
+func (binaryNode *BinaryNode) getPosition() (Position, error) {
+	var err error
+	var pos Position
+
+	if pos.x, err = binaryNode.getShort(); err != nil {
+		return pos, fmt.Errorf("BinaryNode.getPosition(x): %s", err)
+	}
+
+	if pos.y, err = binaryNode.getShort(); err != nil {
+		return pos, fmt.Errorf("BinaryNode.getPosition(y): %s", err)
+	}
+
+	if pos.z, err = binaryNode.getByte(); err != nil {
+		return pos, fmt.Errorf("BinaryNode.getPosition(z): %s", err)
+	}
+
+	return pos, nil
+}
+
 func (binaryNode *BinaryNode) parse(reader *bufio.Reader) error {
 	if startByte, err := reader.ReadByte(); err != nil {
 		return err
-	} else if startByte != NODE_START {
-		return fmt.Errorf("Unable to read root node start byte (should be 0x%x got 0x%x\n", NODE_START, startByte)
+	} else if startByte != NodeStart {
+		return fmt.Errorf("Unable to read root node start byte (should be 0x%X got 0x%X)\n", NodeStart, startByte)
 	}
 
 	return binaryNode.unserialize(reader)
@@ -104,16 +123,16 @@ func (binaryNode *BinaryNode) unserialize(reader *bufio.Reader) (err error) {
 		}
 
 		switch what {
-		case NODE_START:
+		case NodeStart:
 			var newNode BinaryNode
 			if err = newNode.unserialize(reader); err != nil {
 				return
 			}
 
 			binaryNode.children = append(binaryNode.children, newNode)
-		case NODE_END:
+		case NodeEnd:
 			return nil
-		case ESCAPE_CHAR:
+		case EscapeChar:
 			var b uint8
 			if b, err = reader.ReadByte(); err != nil {
 				return

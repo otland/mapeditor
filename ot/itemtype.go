@@ -1,4 +1,4 @@
-package main
+package ot
 
 type ItemType struct {
 	category uint8
@@ -7,7 +7,7 @@ type ItemType struct {
 	serverId uint16
 }
 
-func (itemType ItemType) unserialize(binaryNode *BinaryNode, otbLoader *OtbLoader) (err error) {
+func (itemType ItemType) unserialize(binaryNode *BinaryNode) (err error) {
 	if itemType.category, err = binaryNode.getByte(); err != nil {
 		return
 	}
