@@ -3,8 +3,9 @@ package main
 import (
 	"bufio"
 	"encoding/binary"
-	"github.com/otland/mmap-go"
 	"os"
+
+	"github.com/otland/mmap-go"
 )
 
 type SpriteLoader struct {
@@ -21,33 +22,28 @@ func (loader *SpriteLoader) load(filename string) error {
 
 	reader := bufio.NewReader(file)
 
-	var signature uint32
+	var signature, numSprites uint32
 	if err := binary.Read(reader, binary.LittleEndian, &signature); err != nil {
 		return err
-	}
-
-	var numSprites uint32
-	if err := binary.Read(reader, binary.LittleEndian, &numSprites); err != nil {
+	} else if err := binary.Read(reader, binary.LittleEndian, &numSprites); err != nil {
 		return err
 	}
 
-	offset := (numSprites * 4) - 4
-	spriteIndexOffset := offset - 3
+	offset := (int64(numSprites) * 4) - 8
+	spriteIndexOffset := uint32(offset - 3)
 
 	loader.spriteIndex = make([]uint32, numSprites+1)
 	for i := uint32(1); i <= numSprites; i++ {
 		if err := binary.Read(reader, binary.LittleEndian, &loader.spriteIndex[i]); err != nil {
 			return err
+		} else if loader.spriteIndex[i] != 0 {
+			loader.spriteIndex[i] -= spriteIndexOffset
 		}
-		loader.spriteIndex[i] -= spriteIndexOffset
 	}
 
-	fi, err := file.Stat()
-	if err != nil {
+	if fi, err := file.Stat(); err != nil {
 		return err
-	}
-
-	if loader.data, err = mmap.MapRegion(file, int(fi.Size()-int64(offset)), mmap.RDONLY, 0, int64(offset)); err != nil {
+	} else if loader.data, err = mmap.MapRegion(file, int(fi.Size()-offset), mmap.RDONLY, 0, offset); err != nil {
 		return err
 	}
 	return nil
@@ -55,6 +51,10 @@ func (loader *SpriteLoader) load(filename string) error {
 
 func (loader *SpriteLoader) getSprite(id uint32) []byte {
 	idx := loader.spriteIndex[id]
-	length := uint16(loader.data[idx]) | (uint16(loader.data[idx+1]) << 8)
-	return loader.data[idx+2 : idx+2+uint32(length)]
+	if idx == 0 {
+		return nil
+	}
+
+	length := uint32(loader.data[idx]) | uint32(loader.data[idx+1])<<8
+	return loader.data[idx+2 : idx+2+length]
 }
