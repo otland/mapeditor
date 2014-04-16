@@ -5,7 +5,7 @@ import (
 	"log"
 	"sync"
 
-	"github.com/otland/mapeditor/ot"
+	"./ot"
 )
 
 func main() {
