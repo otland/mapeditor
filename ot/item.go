@@ -72,7 +72,6 @@ func (item *Item) unserialize(binaryNode *BinaryNode) (err error) {
 				return
 			}
 
-			fmt.Printf("Is container: %d: %d\n", attribute == OTBMItemAttrContainerItems, u);
 			item.attributes[attribute] = int(u)
 
 		case OTBMItemAttrTeleDest:
