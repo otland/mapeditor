@@ -43,24 +43,24 @@ const (
 )
 
 const (
-	OTBM_ItemAttrActionId        = 4
-	OTBM_ItemAttrUniqueId        = 5
-	OTBM_ItemAttrText            = 6
-	OTBM_ItemAttrDesc            = 7
-	OTBM_ItemAttrTeleDest        = 8
-	OTBM_ItemAttrItem            = 9
-	OTBM_ItemAttrDepotId         = 10
-	OTBM_ItemAttrRuneCharges     = 12
-	OTBM_ItemAttrHouseDoorId     = 14
-	OTBM_ItemAttrCount           = 15
-	OTBM_ItemAttrDuration        = 16
-	OTBM_ItemAttrDecayState      = 17
-	OTBM_ItemAttrWrittenDate     = 18
-	OTBM_ItemAttrWrittenBy       = 19
-	OTBM_ItemAttrSleepingGUID    = 20
-	OTBM_ItemAttrSleepStart      = 21
-	OTBM_ItemAttrCharges         = 22
-	OTBM_ItemAttrContainerItems  = 23
+	OTBM_ItemAttrActionId       = 4
+	OTBM_ItemAttrUniqueId       = 5
+	OTBM_ItemAttrText           = 6
+	OTBM_ItemAttrDesc           = 7
+	OTBM_ItemAttrTeleDest       = 8
+	OTBM_ItemAttrItem           = 9
+	OTBM_ItemAttrDepotId        = 10
+	OTBM_ItemAttrRuneCharges    = 12
+	OTBM_ItemAttrHouseDoorId    = 14
+	OTBM_ItemAttrCount          = 15
+	OTBM_ItemAttrDuration       = 16
+	OTBM_ItemAttrDecayState     = 17
+	OTBM_ItemAttrWrittenDate    = 18
+	OTBM_ItemAttrWrittenBy      = 19
+	OTBM_ItemAttrSleepingGUID   = 20
+	OTBM_ItemAttrSleepStart     = 21
+	OTBM_ItemAttrCharges        = 22
+	OTBM_ItemAttrContainerItems = 23
 )
 
 const (
