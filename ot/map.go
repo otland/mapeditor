@@ -25,3 +25,19 @@ type Map struct {
 	towns     []Town
 	waypoints map[Position]string
 }
+
+func (otMap *Map) Initialize() {
+	otMap.tiles = make(map[Position]Tile)
+	otMap.waypoints = make(map[Position]string)
+}
+
+func (otMap *Map) getHouse(id uint32) *House {
+	for i := range otMap.houses {
+		house := otMap.houses[i]
+		if house.id == id {
+			return &house
+		}
+	}
+
+	return nil
+}

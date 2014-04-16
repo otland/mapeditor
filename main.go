@@ -26,6 +26,7 @@ func main() {
 		group.Done()
 	}()
 
+	otMap.Initialize()
 	go func() {
 		if err := otbLoader.Load("items.otb"); err != nil {
 			log.Fatal(err)

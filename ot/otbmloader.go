@@ -123,10 +123,9 @@ func (otMap *Map) ReadOTBM(fileName string, otbLoader *OtbLoader) (err error) {
 		if nodeType == OTBMNodeTileArea {
 			var basePos Position
 			if basePos, err = node.getPosition(); err != nil {
-				return err
+				return
 			}
 
-			//fmt.Printf("read basePos: %d %d %d\n", basePos.x, basePos.y, basePos.z)
 			for t := range node.children {
 				nodeTile := node.children[t]
 				if nodeType, err = nodeTile.getByte(); err != nil {
@@ -151,18 +150,15 @@ func (otMap *Map) ReadOTBM(fileName string, otbLoader *OtbLoader) (err error) {
 				tile.pos.y = uint16(y) + basePos.y
 				tile.pos.z = basePos.z
 
-				//fmt.Printf("read tilePos: %d %d %d\n", tile.pos.x, tile.pos.y, tile.pos.z)
 				house := &House{}
 				if nodeType == OTBMNodeHouseTile {
 					var id uint32
 					if id, err = nodeTile.getLong(); err != nil {
-						return err
+						return
 					}
 
-					fmt.Printf("read house id: %d\n", id)
-					if tmpHouse := &otMap.houses[id]; tmpHouse == nil {
+					if tmpHouse := otMap.getHouse(id); tmpHouse != nil {
 						otMap.houses = append(otMap.houses, *tmpHouse)
-					} else {
 						house = tmpHouse
 					}
 
@@ -183,7 +179,6 @@ func (otMap *Map) ReadOTBM(fileName string, otbLoader *OtbLoader) (err error) {
 							return
 						}
 
-						//fmt.Printf("read tileflags: %d\n", tile.flags)
 					case OTBMAttrItem:
 						// This is the ground item, it's always the bottom-level item in the
 						// tile.items array.  So to access it just use the 0 index.
@@ -194,7 +189,6 @@ func (otMap *Map) ReadOTBM(fileName string, otbLoader *OtbLoader) (err error) {
 						}
 
 						tile.items = append(tile.items, tileItem)
-						//fmt.Printf("read ground item: %d\n", tileItem.serverId)
 
 					default:
 						return fmt.Errorf("Unknown tile attribute: 0x%X", tileAttribute)
@@ -216,9 +210,7 @@ func (otMap *Map) ReadOTBM(fileName string, otbLoader *OtbLoader) (err error) {
 						return
 					}
 
-					//fmt.Printf("finished reading item properities\n")
 					if item.isContainer() {
-						fmt.Println("CONTAINER")
 						for c := range nodeItem.children {
 							nodeContainerItem := nodeItem.children[c]
 							if nodeType, err = nodeContainerItem.getByte(); err != nil {
@@ -245,7 +237,6 @@ func (otMap *Map) ReadOTBM(fileName string, otbLoader *OtbLoader) (err error) {
 				}
 			}
 		} else if nodeType == OTBMNodeTowns {
-			fmt.Printf("read towns")
 			for t := range node.children {
 				nodeTown := node.children[t]
 				if nodeType, err = nodeTown.getByte(); err != nil {
@@ -270,12 +261,10 @@ func (otMap *Map) ReadOTBM(fileName string, otbLoader *OtbLoader) (err error) {
 					return
 				}
 
-				fmt.Printf("read town: %d %s %d %d %d\n", town.id, town.name, pos.x, pos.y, pos.z)
 				town.templePos = pos
 				otMap.towns = append(otMap.towns, town)
 			}
 		} else if nodeType == OTBMNodeWaypoints && headerVersion > 1 {
-			fmt.Printf("start read waypoints\n")
 			for w := range node.children {
 				nodeWaypoint := node.children[w]
 				if nodeType, err = nodeWaypoint.getByte(); err != nil {
@@ -296,7 +285,6 @@ func (otMap *Map) ReadOTBM(fileName string, otbLoader *OtbLoader) (err error) {
 					return
 				}
 
-				fmt.Printf("read waypoint: %s %d %d %d\n", name, pos.x, pos.y, pos.z)
 				otMap.waypoints[pos] = name
 			}
 		} else {

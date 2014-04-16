@@ -7,12 +7,15 @@ type Item struct {
 	serverId uint16
 	count    uint16 // Or subtype
 
-	intAttributes map[uint8]int
-	strAttributes map[uint8]string
-
+	attributes map[uint8]interface{}
 	teleportDestination Position
 
 	children []Item
+}
+
+func (item *Item) create(serverId uint16) {
+	item.serverId = serverId
+	item.attributes = make(map[uint8]interface{})
 }
 
 func (item *Item) unserialize(binaryNode *BinaryNode) (err error) {
@@ -20,6 +23,7 @@ func (item *Item) unserialize(binaryNode *BinaryNode) (err error) {
 		return
 	}
 
+	item.attributes = make(map[uint8]interface{})
 	for len(binaryNode.data) != 0 {
 		var attribute uint8
 
@@ -51,7 +55,7 @@ func (item *Item) unserialize(binaryNode *BinaryNode) (err error) {
 				return
 			}
 
-			item.intAttributes[attribute] = int(b)
+			item.attributes[attribute] = int(b)
 
 		case OTBMItemAttrActionID, OTBMItemAttrUniqueID, OTBMItemAttrDepotID:
 			var s uint16
@@ -59,7 +63,7 @@ func (item *Item) unserialize(binaryNode *BinaryNode) (err error) {
 				return
 			}
 
-			item.intAttributes[attribute] = int(s)
+			item.attributes[attribute] = int(s)
 
 		case OTBMItemAttrContainerItems, OTBMItemAttrDuration, OTBMItemAttrWrittenDate,
 				OTBMItemAttrSleepingGUID, OTBMItemAttrSleepStart:
@@ -69,7 +73,7 @@ func (item *Item) unserialize(binaryNode *BinaryNode) (err error) {
 			}
 
 			fmt.Printf("Is container: %d: %d\n", attribute == OTBMItemAttrContainerItems, u);
-			item.intAttributes[attribute] = int(u)
+			item.attributes[attribute] = int(u)
 
 		case OTBMItemAttrTeleDest:
 			if item.teleportDestination, err = binaryNode.getPosition(); err != nil {
@@ -82,7 +86,7 @@ func (item *Item) unserialize(binaryNode *BinaryNode) (err error) {
 				return
 			}
 
-			item.strAttributes[attribute] = s
+			item.attributes[attribute] = s
 
 		default:
 			return fmt.Errorf("Unknown item attribute: %d for id: %d", attribute, item.serverId)
@@ -93,5 +97,5 @@ func (item *Item) unserialize(binaryNode *BinaryNode) (err error) {
 }
 
 func (item *Item) isContainer() bool {
-	return item.intAttributes[OTBMItemAttrContainerItems] != 0
+	return item.attributes[OTBMItemAttrContainerItems] != 0
 }
