@@ -32,8 +32,7 @@ func (item *Item) unserialize(binaryNode *BinaryNode) (err error) {
 		}
 
 		switch attribute {
-		case OTBM_ItemAttrCount:
-		case OTBM_ItemAttrRuneCharges:
+		case OTBMItemAttrCount, OTBMItemAttrRuneCharges:
 			var count uint8
 			if count, err = binaryNode.getByte(); err != nil {
 				return
@@ -41,13 +40,12 @@ func (item *Item) unserialize(binaryNode *BinaryNode) (err error) {
 
 			item.count = uint16(count)
 
-		case OTBM_ItemAttrCharges:
+		case OTBMItemAttrCharges:
 			if item.count, err = binaryNode.getShort(); err != nil {
 				return
 			}
 
-		case OTBM_ItemAttrHouseDoorId:
-		case OTBM_ItemAttrDecayState:
+		case OTBMItemAttrHouseDoorID, OTBMItemAttrDecayState:
 			var b uint8
 			if b, err = binaryNode.getByte(); err != nil {
 				return
@@ -55,37 +53,30 @@ func (item *Item) unserialize(binaryNode *BinaryNode) (err error) {
 
 			item.intAttributes[attribute] = int(b)
 
-		case OTBM_ItemAttrActionId:
-		case OTBM_ItemAttrUniqueId:
-		case OTBM_ItemAttrDepotId:
+		case OTBMItemAttrActionID, OTBMItemAttrUniqueID, OTBMItemAttrDepotID:
 			var s uint16
 			if s, err = binaryNode.getShort(); err != nil {
 				return
 			}
 
-			fmt.Printf("is depot: %d got: %d\n", attribute == OTBM_ItemAttrDepotId, s)
 			item.intAttributes[attribute] = int(s)
 
-		case OTBM_ItemAttrContainerItems:
-		case OTBM_ItemAttrDuration:
-		case OTBM_ItemAttrWrittenDate:
-		case OTBM_ItemAttrSleepingGUID:
-		case OTBM_ItemAttrSleepStart:
+		case OTBMItemAttrContainerItems, OTBMItemAttrDuration, OTBMItemAttrWrittenDate,
+				OTBMItemAttrSleepingGUID, OTBMItemAttrSleepStart:
 			var u uint32
 			if u, err = binaryNode.getLong(); err != nil {
 				return
 			}
 
+			fmt.Printf("Is container: %d: %d\n", attribute == OTBMItemAttrContainerItems, u);
 			item.intAttributes[attribute] = int(u)
 
-		case OTBM_ItemAttrTeleDest:
+		case OTBMItemAttrTeleDest:
 			if item.teleportDestination, err = binaryNode.getPosition(); err != nil {
 				return
 			}
 
-		case OTBM_ItemAttrText:
-		case OTBM_ItemAttrDesc:
-		case OTBM_ItemAttrWrittenBy:
+		case OTBMItemAttrText, OTBMItemAttrDesc, OTBMItemAttrWrittenBy:
 			var s string
 			if s, err = binaryNode.getString(); err != nil {
 				return
@@ -94,7 +85,7 @@ func (item *Item) unserialize(binaryNode *BinaryNode) (err error) {
 			item.strAttributes[attribute] = s
 
 		default:
-			return fmt.Errorf("Unknown item attribute: 0x%X for id: %d", attribute, item.serverId)
+			return fmt.Errorf("Unknown item attribute: %d for id: %d", attribute, item.serverId)
 		}
 	}
 
@@ -102,5 +93,5 @@ func (item *Item) unserialize(binaryNode *BinaryNode) (err error) {
 }
 
 func (item *Item) isContainer() bool {
-	return item.intAttributes[OTBM_ItemAttrContainerItems] != 0
+	return item.intAttributes[OTBMItemAttrContainerItems] != 0
 }
