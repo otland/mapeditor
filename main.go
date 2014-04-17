@@ -13,6 +13,7 @@ func main() {
 
 	var sprLoader SpriteLoader
 	var otbLoader ot.OtbLoader
+	var otMap ot.Map
 
 	var group sync.WaitGroup
 	group.Add(2)
@@ -24,8 +25,14 @@ func main() {
 
 		group.Done()
 	}()
+
+	otMap.Initialize()
 	go func() {
 		if err := otbLoader.Load("items.otb"); err != nil {
+			log.Fatal(err)
+		}
+
+		if err := otMap.ReadOTBM("forgotten.otbm", &otbLoader); err != nil {
 			log.Fatal(err)
 		}
 
