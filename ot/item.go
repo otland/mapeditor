@@ -3,23 +3,22 @@ package ot
 import "fmt"
 
 type Item struct {
-	clientId uint16
-	serverId uint16
+	serverID uint16
 	count    uint16 // Or subtype
 
-	attributes map[uint8]interface{}
+	attributes          map[uint8]interface{}
 	teleportDestination Position
 
 	children []Item
 }
 
-func (item *Item) create(serverId uint16) {
-	item.serverId = serverId
+func (item *Item) create(serverID uint16) {
+	item.serverID = serverID
 	item.attributes = make(map[uint8]interface{})
 }
 
 func (item *Item) unserialize(binaryNode *BinaryNode) (err error) {
-	if item.serverId, err = binaryNode.getShort(); err != nil {
+	if item.serverID, err = binaryNode.getShort(); err != nil {
 		return
 	}
 
@@ -66,7 +65,7 @@ func (item *Item) unserialize(binaryNode *BinaryNode) (err error) {
 			item.attributes[attribute] = int(s)
 
 		case OTBMItemAttrContainerItems, OTBMItemAttrDuration, OTBMItemAttrWrittenDate,
-				OTBMItemAttrSleepingGUID, OTBMItemAttrSleepStart:
+			OTBMItemAttrSleepingGUID, OTBMItemAttrSleepStart:
 			var u uint32
 			if u, err = binaryNode.getLong(); err != nil {
 				return
@@ -88,7 +87,7 @@ func (item *Item) unserialize(binaryNode *BinaryNode) (err error) {
 			item.attributes[attribute] = s
 
 		default:
-			return fmt.Errorf("Unknown item attribute: %d for id: %d", attribute, item.serverId)
+			return fmt.Errorf("unknown item attribute %d for id %d", attribute, item.serverID)
 		}
 	}
 

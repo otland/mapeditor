@@ -24,7 +24,7 @@ func (otMap *Map) ReadOTBM(fileName string, otbLoader *OtbLoader) (err error) {
 	}
 
 	if !bytes.Equal(identifier[:4], []byte{'\x00', '\x00', '\x00', '\x00'}) && !bytes.Equal(identifier[:4], []byte{'O', 'T', 'B', 'M'}) {
-		return fmt.Errorf("Corrupt OTBM file; OTBM Identifier must either be 0's or \"OTBM\" (got: %q)", identifier)
+		return fmt.Errorf("unsupported file identifier", identifier)
 	}
 
 	var root BinaryNode
@@ -38,7 +38,7 @@ func (otMap *Map) ReadOTBM(fileName string, otbLoader *OtbLoader) (err error) {
 	}
 
 	if property != 0 {
-		return errors.New("Unable to read OTBM Root property!")
+		return errors.New("unable to read OTBM root property")
 	}
 
 	var headerVersion uint32
@@ -47,7 +47,7 @@ func (otMap *Map) ReadOTBM(fileName string, otbLoader *OtbLoader) (err error) {
 	}
 
 	if headerVersion > 3 {
-		return errors.New("Unknown OTBM Version detected")
+		return errors.New("unsupported OTBM version")
 	}
 
 	if otMap.width, err = root.getShort(); err != nil {
@@ -64,7 +64,7 @@ func (otMap *Map) ReadOTBM(fileName string, otbLoader *OtbLoader) (err error) {
 	}
 
 	if majorItemsVersion > otbLoader.majorVersion {
-		return fmt.Errorf("This map was saved with a different OTB version (OTB version: %d, got: %d)", otbLoader.majorVersion, majorItemsVersion)
+		return fmt.Errorf("unsupported otb major version, expected: %d, got: %d", otbLoader.majorVersion, majorItemsVersion)
 	}
 
 	var minorItemsVersion uint32
@@ -73,7 +73,7 @@ func (otMap *Map) ReadOTBM(fileName string, otbLoader *OtbLoader) (err error) {
 	}
 
 	if minorItemsVersion > otbLoader.minorVersion {
-		return fmt.Errorf("This map needs an updated OTB (OTB version: %d, got: %d)", otbLoader.minorVersion, minorItemsVersion)
+		return fmt.Errorf("unsupported otb minor version, expected: %d, got: %d", otbLoader.minorVersion, minorItemsVersion)
 	}
 
 	var nodeType uint8
@@ -84,7 +84,7 @@ func (otMap *Map) ReadOTBM(fileName string, otbLoader *OtbLoader) (err error) {
 	}
 
 	if nodeType != OTBMNodeMapData {
-		return fmt.Errorf("Corrupt OTBM file (Expected OTBMNodeMapData got: 0x%X)", nodeType)
+		return fmt.Errorf("expected OTBMNodeMapData, got: 0x%X", nodeType)
 	}
 
 	for len(mapDataNode.data) != 0 {
@@ -110,7 +110,7 @@ func (otMap *Map) ReadOTBM(fileName string, otbLoader *OtbLoader) (err error) {
 			otMap.houseFile = tmp
 
 		default:
-			return fmt.Errorf("Corrupt OTBM file (got unknown attribute: 0x%X", attribute)
+			return fmt.Errorf("unknown attribute: 0x%X", attribute)
 		}
 	}
 
@@ -133,7 +133,7 @@ func (otMap *Map) ReadOTBM(fileName string, otbLoader *OtbLoader) (err error) {
 				}
 
 				if nodeType != OTBMNodeTile && nodeType != OTBMNodeHouseTile {
-					return fmt.Errorf("Corrupt OTBM File, Tile node should be either OTBMTile or OTBMHouseTile (got: 0x%X)", nodeType)
+					return fmt.Errorf("unknown tile node, expected OTBMTile or OTBMHouseTile, got: 0x%X", nodeType)
 				}
 
 				var tile Tile
@@ -184,14 +184,14 @@ func (otMap *Map) ReadOTBM(fileName string, otbLoader *OtbLoader) (err error) {
 						// tile.items array.  So to access it just use the 0 index.
 
 						var tileItem Item
-						if tileItem.serverId, err = nodeTile.getShort(); err != nil {
+						if tileItem.serverID, err = nodeTile.getShort(); err != nil {
 							return
 						}
 
 						tile.items = append(tile.items, tileItem)
 
 					default:
-						return fmt.Errorf("Unknown tile attribute: 0x%X", tileAttribute)
+						return fmt.Errorf("unknown tile attribute: 0x%X", tileAttribute)
 					}
 				}
 
@@ -202,7 +202,7 @@ func (otMap *Map) ReadOTBM(fileName string, otbLoader *OtbLoader) (err error) {
 					}
 
 					if nodeType != OTBMNodeItem {
-						return fmt.Errorf("Corrupt OTBM file, expected OTBMItem node in OTBMTile node! (got: 0x%X)", nodeType)
+						return fmt.Errorf("expected OTBMItem node in OTBMTile node, got: 0x%X", nodeType)
 					}
 
 					var item Item
@@ -218,7 +218,7 @@ func (otMap *Map) ReadOTBM(fileName string, otbLoader *OtbLoader) (err error) {
 							}
 
 							if nodeType != OTBMNodeItem {
-								return fmt.Errorf("Corrupt OTBM file, expected OTBMItem node as child of a container (got: 0x%X)", nodeType)
+								return fmt.Errorf("expected OTBMItem node as child of a container, got: 0x%X", nodeType)
 							}
 
 							var containerItem Item
@@ -244,7 +244,7 @@ func (otMap *Map) ReadOTBM(fileName string, otbLoader *OtbLoader) (err error) {
 				}
 
 				if nodeType != OTBMNodeTown {
-					return fmt.Errorf("Corrupt OTBM file; expected OTBMTown node after OTBMTowns (got: 0x%X)", nodeType)
+					return fmt.Errorf("expected OTBMTown node after OTBMTowns, got: 0x%X", nodeType)
 				}
 
 				var town Town
@@ -272,7 +272,7 @@ func (otMap *Map) ReadOTBM(fileName string, otbLoader *OtbLoader) (err error) {
 				}
 
 				if nodeType != OTBMNodeWaypoint {
-					return fmt.Errorf("Corrupt OTBM file; expected OTBMWaypoint after OTBMWaypoints (got: 0x%X)", nodeType)
+					return fmt.Errorf("expected OTBMWaypoint after OTBMWaypoints, got: 0x%X", nodeType)
 				}
 
 				var name string
@@ -288,9 +288,8 @@ func (otMap *Map) ReadOTBM(fileName string, otbLoader *OtbLoader) (err error) {
 				otMap.waypoints[pos] = name
 			}
 		} else {
-			return fmt.Errorf("Unknown OTBM attribute 0x%X!", nodeType)
+			return fmt.Errorf("unknown OTBM attribute 0x%X", nodeType)
 		}
 	}
-
 	return nil
 }
