@@ -1,4 +1,4 @@
-package main
+package client
 
 import (
 	"bufio"
@@ -13,7 +13,7 @@ type SpriteLoader struct {
 	spriteIndex []uint32
 }
 
-func (loader *SpriteLoader) load(filename string) error {
+func (loader *SpriteLoader) Load(filename string) error {
 	file, err := os.Open(filename)
 	if err != nil {
 		return err
@@ -49,7 +49,7 @@ func (loader *SpriteLoader) load(filename string) error {
 	return nil
 }
 
-func (loader *SpriteLoader) getSprite(id uint32) []byte {
+func (loader *SpriteLoader) GetSprite(id uint32) []byte {
 	idx := loader.spriteIndex[id]
 	if idx == 0 {
 		return nil

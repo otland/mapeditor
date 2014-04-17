@@ -5,13 +5,14 @@ import (
 	"log"
 	"sync"
 
+	"github.com/otland/mapeditor/client"
 	"github.com/otland/mapeditor/ot"
 )
 
 func main() {
 	fmt.Println("OpenTibia Map Editor")
 
-	var sprLoader SpriteLoader
+	var sprLoader client.SpriteLoader
 	var otbLoader ot.OtbLoader
 	var otMap ot.Map
 
@@ -19,7 +20,7 @@ func main() {
 	group.Add(2)
 
 	go func() {
-		if err := sprLoader.load("data.spr"); err != nil {
+		if err := sprLoader.Load("data.spr"); err != nil {
 			log.Fatal(err)
 		}
 
