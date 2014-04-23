@@ -27,3 +27,4 @@ mapeditor
 *.otb
 *.otbm
 
+config.json
