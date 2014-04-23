@@ -55,6 +55,31 @@ func (loader *SpriteLoader) GetSprite(id uint32) []byte {
 		return nil
 	}
 
-	length := uint32(loader.data[idx]) | uint32(loader.data[idx+1])<<8
-	return loader.data[idx+2 : idx+2+length]
+	length := uint32(binary.LittleEndian.Uint16(loader.data[idx:]))
+	data := loader.data[idx+2 : idx+2+length]
+
+	// NRGBA sprite
+	sprite := make([]byte, 32*32*4)
+	sp := 0
+
+	for len(data) > 0 {
+		transparentPixels := int(binary.LittleEndian.Uint16(data))
+		coloredPixels := int(binary.LittleEndian.Uint16(data[2:]))
+
+		data = data[4:]
+
+		sp += transparentPixels * 4
+
+		for i := 0; i < coloredPixels; i++ {
+			sprite[sp] = data[0]
+			sprite[sp+1] = data[1]
+			sprite[sp+2] = data[2]
+			sprite[sp+3] = 255
+
+			data = data[3:]
+			sp += 4
+		}
+	}
+
+	return sprite
 }
