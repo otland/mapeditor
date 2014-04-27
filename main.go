@@ -2,16 +2,21 @@ package main
 
 import (
 	"fmt"
-	"image"
-	"image/png"
 	"log"
-	"os"
+	"runtime"
 	"sync"
 
+	"github.com/go-gl/gl"
+	glfw "github.com/go-gl/glfw3"
+
 	"github.com/otland/mapeditor/client"
+	"github.com/otland/mapeditor/renderer"
 )
 
 func main() {
+	runtime.LockOSThread()
+	defer runtime.UnlockOSThread()
+
 	fmt.Println("OpenTibia Map Editor")
 
 	conf := &Configuration{}
@@ -55,16 +60,68 @@ func main() {
 	*/
 	group.Wait()
 
-	ids := datLoader.GetSpriteIDs(420)
-	sprite := sprLoader.GetSprite(ids[0])
+	if !glfw.Init() {
+		panic("Failed to initialize GLFW")
+	}
+	defer glfw.Terminate()
 
-	img := image.NewNRGBA(image.Rect(0, 0, 32, 32))
-	img.Pix = sprite
+	glfw.WindowHint(glfw.ContextVersionMajor, 3)
+	glfw.WindowHint(glfw.ContextVersionMinor, 2)
+	glfw.WindowHint(glfw.OpenglForwardCompatible, glfw.True)
+	glfw.WindowHint(glfw.OpenglProfile, glfw.OpenglCoreProfile)
 
-	out, _ := os.Create("test.png")
-	defer out.Close()
+	window, err := glfw.CreateWindow(640, 480, "Map Editor", nil, nil)
+	if err != nil {
+		panic(err)
+	}
 
-	if err := png.Encode(out, img); err != nil {
-		log.Fatal(err)
+	window.SetKeyCallback(keyHandler)
+
+	window.MakeContextCurrent()
+
+	if err := gl.Init(); err != 0 {
+		log.Fatal("Could not init gl")
+	}
+
+	log.Printf("OpenGL Version: %s", gl.GetString(gl.VERSION))
+	log.Printf("GLSL Version: %s", gl.GetString(gl.SHADING_LANGUAGE_VERSION))
+	log.Printf("Vendor: %s", gl.GetString(gl.VENDOR))
+	log.Printf("Renderer: %s", gl.GetString(gl.RENDERER))
+
+	r := renderer.Renderer{}
+
+	r.Initialize()
+	r.SetViewport(0, 0, 800, 600)
+
+	for !window.ShouldClose() {
+		r.Render()
+
+		window.SwapBuffers()
+		glfw.PollEvents()
+	}
+
+	/*
+		ids := datLoader.GetSpriteIDs(420)
+		sprite := sprLoader.GetSprite(ids[0])
+
+		img := image.NewNRGBA(image.Rect(0, 0, 32, 32))
+		img.Pix = sprite
+
+		out, _ := os.Create("test.png")
+		defer out.Close()
+
+		if err := png.Encode(out, img); err != nil {
+			log.Fatal(err)
+		}*/
+}
+
+func keyHandler(window *glfw.Window, k glfw.Key, s int, action glfw.Action, mods glfw.ModifierKey) {
+	if action != glfw.Press {
+		return
+	}
+
+	switch glfw.Key(k) {
+	case glfw.KeyEscape:
+		window.SetShouldClose(true)
 	}
 }
