@@ -42,7 +42,6 @@ func ISO88591Reader(_ string, input io.Reader) (io.Reader, error) {
 	return NewCharsetISO88591(input), nil
 }
 
-// TODO: support fromid/toid
 type XMLItem struct {
 	Id     uint16 `xml:"id,attr"`
 	FromId uint16 `xml:"fromid,attr"`
