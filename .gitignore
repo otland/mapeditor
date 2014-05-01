@@ -26,5 +26,6 @@ mapeditor
 *.dat
 *.otb
 *.otbm
+items.xml
 
 config.json

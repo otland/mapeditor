@@ -10,6 +10,7 @@ import (
 	glfw "github.com/go-gl/glfw3"
 
 	"github.com/otland/mapeditor/client"
+	"github.com/otland/mapeditor/ot"
 	"github.com/otland/mapeditor/renderer"
 )
 
@@ -24,24 +25,29 @@ func main() {
 
 	var sprLoader client.SpriteLoader
 	var datLoader client.DatLoader
+	var itemLoader ot.ItemLoader
 	//var otbLoader ot.OtbLoader
 	//var otMap ot.Map
 
 	var group sync.WaitGroup
-	group.Add(2)
+	group.Add(3)
 
 	go func() {
 		if err := sprLoader.Load(conf.SprFile); err != nil {
 			log.Fatal(err)
 		}
-
 		group.Done()
 	}()
 	go func() {
 		if err := datLoader.Load(conf.DatFile); err != nil {
 			log.Fatal(err)
 		}
-
+		group.Done()
+	}()
+	go func() {
+		if err := itemLoader.LoadXML("items.xml"); err != nil {
+			log.Fatal(err)
+		}
 		group.Done()
 	}()
 	/*
