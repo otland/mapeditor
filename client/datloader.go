@@ -8,7 +8,21 @@ import (
 )
 
 type DatLoader struct {
-	spriteIDs [][]uint32
+	things []DatThing
+}
+
+type DatThing struct {
+	Width  uint8
+	Height uint8
+
+	Frames uint8
+	XDiv   uint8
+	YDiv   uint8
+	ZDiv   uint8
+
+	AnimationLength uint8
+
+	Sprites []uint32
 }
 
 func (loader *DatLoader) Load(filename string) error {
@@ -35,7 +49,8 @@ func (loader *DatLoader) Load(filename string) error {
 	} else if err := binary.Read(reader, binary.LittleEndian, &distanceEffects); err != nil {
 		return err
 	}
-	loader.spriteIDs = make([][]uint32, items+1)
+
+	loader.things = make([]DatThing, items+1)
 
 	clientID := uint16(100)
 	for clientID <= items {
@@ -72,13 +87,21 @@ func (loader *DatLoader) Load(filename string) error {
 		spriteCount := uint16(width) * uint16(height) *
 			uint16(xdiv) * uint16(ydiv) * uint16(zdiv) *
 			uint16(frames) * uint16(animationLength)
+
+		dt := DatThing{width, height, frames, xdiv, ydiv, zdiv, animationLength,
+			make([]uint32, spriteCount)}
+
 		for i := uint16(0); i < spriteCount; i++ {
 			var spriteID uint32
 			if err := binary.Read(reader, binary.LittleEndian, &spriteID); err != nil {
 				return err
 			}
-			loader.spriteIDs[clientID] = append(loader.spriteIDs[clientID], spriteID)
+
+			dt.Sprites[i] = spriteID
+			//loader.sprit[clientID] = append(loader.spriteIDs[clientID], spriteID)
 		}
+
+		loader.things[clientID] = dt
 		clientID++
 	}
 	return nil
@@ -206,6 +229,6 @@ func (loader *DatLoader) readAttributes(reader *bufio.Reader) (err error) {
 	}
 }
 
-func (loader *DatLoader) GetSpriteIDs(clientID uint16) []uint32 {
-	return loader.spriteIDs[clientID]
+func (loader *DatLoader) GetThing(clientID uint16) DatThing {
+	return loader.things[clientID]
 }
