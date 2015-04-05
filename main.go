@@ -6,8 +6,8 @@ import (
 	"runtime"
 	"sync"
 
-	"github.com/go-gl/gl"
-	glfw "github.com/go-gl/glfw3"
+	"github.com/go-gl/gl/v4.5-core/gl"
+	glfw "github.com/go-gl/glfw/v3.1/glfw"
 
 	"github.com/otland/mapeditor/client"
 	"github.com/otland/mapeditor/ot"
