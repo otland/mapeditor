@@ -1,6 +1,6 @@
 package renderer
 
-import "github.com/go-gl/gl"
+import "github.com/go-gl/gl/v4.5-core/gl"
 
 type Renderer struct {
 	prog gl.Program
