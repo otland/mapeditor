@@ -9,9 +9,9 @@ import (
 	"github.com/go-gl/gl/v4.5-core/gl"
 	glfw "github.com/go-gl/glfw/v3.1/glfw"
 
-	"github.com/joseivan/mapeditor/client"
-	"github.com/joseivan/mapeditor/ot"
-	"github.com/joseivan/mapeditor/renderer"
+	"github.com/otland/mapeditor/client"
+	"github.com/otland/mapeditor/ot"
+	"github.com/otland/mapeditor/renderer"
 )
 
 func main() {
