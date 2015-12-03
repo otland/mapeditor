@@ -1,13 +1,13 @@
 package renderer
 
-import "github.com/go-gl/gl"
+import "github.com/go-gl/gl/v4.5-core/gl"
 
 type Renderer struct {
-	prog gl.Program
-	vao  gl.VertexArray
-	vbo  gl.Buffer
+	prog uint32
+	vao  uint32
+	vbo  uint32
 
-	mvmLocation gl.UniformLocation
+	mvmLocation int32
 
 	vertices []mapVertex
 }
@@ -51,13 +51,13 @@ func (r *Renderer) Initialize() {
 
 	// Create the VAO
 	// GL 3+ allows us to store the vertex layout in a vertex array object (VAO).
-	r.vao = gl.GenVertexArray()
-	r.vao.Bind()
+	gl.GenVertexArrays(1, &r.vao)
+	gl.BindVertexArray(r.vao)
 
 	// Create VBO
-	r.vbo = gl.GenBuffer()
-	r.vbo.Bind(gl.ARRAY_BUFFER)
-	gl.BufferData(gl.ARRAY_BUFFER, len(r.vertices)*4*9, r.vertices, gl.DYNAMIC_DRAW)
+	gl.GenBuffers(1, &r.vbo)
+	gl.BindBuffer(gl.ARRAY_BUFFER, r.vbo)
+	gl.BufferData(gl.ARRAY_BUFFER, len(r.vertices)*4*9, gl.Ptr(r.vertices), gl.DYNAMIC_DRAW)
 
 	prog, err := LoadProgram(vs, gs, fs)
 
@@ -65,42 +65,44 @@ func (r *Renderer) Initialize() {
 		panic(err)
 	}
 
-	prog.Use()
+	gl.UseProgram(prog)
 
 	r.prog = prog
-	r.mvmLocation = r.prog.GetUniformLocation("modelview_matrix")
+	r.mvmLocation = gl.GetUniformLocation(r.prog, gl.Str("modelview_matrix"))
 
-	pos := r.prog.GetAttribLocation("in_position")
-	color := r.prog.GetAttribLocation("in_color")
-	texcoord := r.prog.GetAttribLocation("in_texcoord")
+	pos := uint32(gl.GetAttribLocation(r.prog, gl.Str("in_position")))
+	color := uint32(gl.GetAttribLocation(r.prog, gl.Str("in_color")))
+	texcoord := uint32(gl.GetAttribLocation(r.prog, gl.Str("in_texcoord")))
+
+	gl.EnableVertexAttribArray(pos)
+	gl.EnableVertexAttribArray(color)
+	gl.EnableVertexAttribArray(texcoord)
 
 	// FIXME: size math
-	pos.AttribPointer(3, gl.FLOAT, false, 9*4, nil)
-	color.AttribPointer(4, gl.FLOAT, false, 9*4, uintptr(3*4))
-	texcoord.AttribPointer(2, gl.FLOAT, false, 9*4, uintptr(7*4))
+	gl.VertexAttribPointer(pos, 3, gl.FLOAT, false, 9*4, nil)
+	gl.VertexAttribPointer(color, 4, gl.FLOAT, false, 9*4, gl.PtrOffset(3*4))
+	gl.VertexAttribPointer(texcoord, 2, gl.FLOAT, false, 9*4, gl.PtrOffset(7*4))
 
-	pos.EnableArray()
-	color.EnableArray()
-	texcoord.EnableArray()
 }
 
 func (r *Renderer) SetViewport(x, y, w, h float32) {
 	m := Matrix4{}
 	m.Ortho(x, x+w, y+h, y, -1.0, 1.0)
 	fl := (*[16]float32)(&m)
-
-	r.mvmLocation.UniformMatrix4f(false, fl)
+	
+	gl.UniformMatrix4fv(r.mvmLocation, 1, false, &fl[0])
 }
 
 func (r *Renderer) Render() {
 	gl.Clear(gl.COLOR_BUFFER_BIT)
 
-	r.prog.Use()
+	gl.UseProgram(r.prog)
 
-	r.vao.Bind()
-	r.vbo.Bind(gl.ARRAY_BUFFER)
+	gl.BindVertexArray(r.vao)
+	gl.BindBuffer(gl.ARRAY_BUFFER, r.vbo)
 
-	gl.DrawArrays(gl.POINTS, 0, len(r.vertices))
+	//TODO Verify force cast in length
+	gl.DrawArrays(gl.POINTS, 0, int32(len(r.vertices)))
 
 	// FIXME: unbind vao/vbo/prog?
 }

@@ -6,8 +6,8 @@ import (
 	"runtime"
 	"sync"
 
-	"github.com/go-gl/gl"
-	glfw "github.com/go-gl/glfw3"
+	"github.com/go-gl/gl/v4.5-core/gl"
+	glfw "github.com/go-gl/glfw/v3.1/glfw"
 
 	"github.com/otland/mapeditor/client"
 	"github.com/otland/mapeditor/ot"
@@ -66,15 +66,15 @@ func main() {
 	*/
 	group.Wait()
 
-	if !glfw.Init() {
+	if glfw.Init() != nil {
 		panic("Failed to initialize GLFW")
 	}
 	defer glfw.Terminate()
 
 	glfw.WindowHint(glfw.ContextVersionMajor, 3)
 	glfw.WindowHint(glfw.ContextVersionMinor, 2)
-	glfw.WindowHint(glfw.OpenglForwardCompatible, glfw.True)
-	glfw.WindowHint(glfw.OpenglProfile, glfw.OpenglCoreProfile)
+	glfw.WindowHint(glfw.OpenGLForwardCompatible, glfw.True)
+	glfw.WindowHint(glfw.OpenGLProfile, glfw.OpenGLCoreProfile)
 
 	window, err := glfw.CreateWindow(640, 480, "Map Editor", nil, nil)
 	if err != nil {
@@ -85,7 +85,7 @@ func main() {
 
 	window.MakeContextCurrent()
 
-	if err := gl.Init(); err != 0 {
+	if err := gl.Init(); err != nil {
 		log.Fatal("Could not init gl")
 	}
 
